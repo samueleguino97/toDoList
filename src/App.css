@@ -1,3 +1,6 @@
+body{
+  background-color: lightblue;
+}
 .App {
   text-align: center;
 }
@@ -7,13 +10,14 @@
   height: 40vmin;
 }
 
-.App-header {
-  background-color: #282c34;
+.wrapper {
+  background-color: goldenrod;
+  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  width: 60%;
   font-size: calc(10px + 2vmin);
   color: white;
 }

@@ -1,28 +1,63 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-class App extends Component {
+import './App.css';
+import firebase from 'firebase';
+
+import{List} from './List';
+
+const config = {
+  apiKey: "AIzaSyC7xlwO9ZlwOnRHyg3VEmZKym5PU426jos",
+  authDomain: "to-do-49ddd.firebaseapp.com",
+  databaseURL: "https://to-do-49ddd.firebaseio.com",
+  projectId: "to-do-49ddd",
+  storageBucket: "to-do-49ddd.appspot.com",
+  messagingSenderId: "468212013435"
+};
+firebase.initializeApp(config);
+
+const database = firebase.database();
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      term: {
+        curr: '',
+        isChecked:false
+      },
+      items: []
+    };
+  }
+
+  onChange = (event) => {
+    this.setState({ term: {
+      curr: event.target.value,
+      isChecked:false,
+    } });
+  }
+
+  onSubmit = (event) => {
+    event.preventDefault();
+    this.setState({
+      term: {
+        curr: '',
+        isChecked:false
+      },
+      items: [...this.state.items, this.state.term]
+    });
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div className="wrapper">
+      <h1 style={{color: 'lightblue'}}>To-Do List</h1>
+        <form className="App" onSubmit={this.onSubmit}>
+          <input value={this.state.term.curr} onChange={this.onChange} />
+          <button>Add Task</button>
+        </form>
+        <List items={this.state.items} />
       </div>
     );
   }
 }
 
-export default App;
