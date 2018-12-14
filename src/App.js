@@ -27,6 +27,7 @@ export default class App extends Component {
       },
       items: []
     };
+    this.onClick=this.onClick.bind(this);
   }
 
   onChange = (event) => {
@@ -36,11 +37,26 @@ export default class App extends Component {
     } });
   }
 
+  onClick = (event)=>{
+    
+    
+    this.setState({term:{
+      curr: this.state.term.curr,
+      isChecked: !this.state.term.isChecked
+    }})
+
+    
+  }
+  componentDidUpdate(){
+    const taskRef = database.ref('/tasks');
+    taskRef.update(this.state.term);
+  }
+
   onSubmit = (event) => {
     event.preventDefault();
     if(this.state.term.curr){
     const itemsRef=database.ref('/tasks');
-    itemsRef.push(this.state.term.curr);
+    itemsRef.push(this.state.term);
 
     this.setState({
       term: {
@@ -61,7 +77,7 @@ export default class App extends Component {
           <input value={this.state.term.curr} onChange={this.onChange} />
           <button>Add Task</button>
         </form>
-        <List items={this.state.items} />
+        <List onClick={this.onClick} items={this.state.items} />
       </div>
     );
   }
