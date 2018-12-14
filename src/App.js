@@ -38,6 +38,10 @@ export default class App extends Component {
 
   onSubmit = (event) => {
     event.preventDefault();
+    if(this.state.term.curr){
+    const itemsRef=database.ref('/tasks');
+    itemsRef.push(this.state.term.curr);
+
     this.setState({
       term: {
         curr: '',
@@ -45,6 +49,8 @@ export default class App extends Component {
       },
       items: [...this.state.items, this.state.term]
     });
+  }
+
   }
 
   render() {
