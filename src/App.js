@@ -27,17 +27,23 @@ export default class App extends Component {
     this.onClick=this.onClick.bind(this);
     
   }
-  componentDidMount(){
-    let data=[];
+  componentWillMount(){
+    
+    
     const tasksRef = database.ref('/tasks');
+
+    let self = this;
     tasksRef.on('value',function(snapshot){
+      let data=[];
       snapshot.forEach(function(chSnapshot){
         data.push(chSnapshot.val());
       });
+
+      self.setState({
+        items: data
+      });
     });
-    this.setState({
-      items: data
-    });
+    
     
   }
   
@@ -73,6 +79,8 @@ export default class App extends Component {
   }
 
   render() {
+    console.log(JSON.stringify(this.state.items));
+
     return (
       <div className="wrapper">
       <h1 style={{color: 'lightblue'}}>To-Do List</h1>
