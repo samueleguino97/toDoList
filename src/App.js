@@ -55,13 +55,17 @@ export default class App extends Component {
 
  
   onClick(e){
+    const tasksRef=database.ref('/tasks');
+
     const nI=this.state.items;
     nI.splice(nI.indexOf(e.target.value),1);
     setTimeout(()=>{
     
     this.setState({
       items: nI,
-    });},1000);
+    });
+    tasksRef.set(nI);
+  },1000);
   }
 
   onSubmit = (event) => {
