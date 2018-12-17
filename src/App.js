@@ -67,24 +67,15 @@ export default class App extends Component {
 
  
   onClick(e){
-    const nI = this.state.items;
-    console.log(this.state.items);
+    
     const item = this.state.items.find(itemToFind=>{
       return itemToFind.value==e.target.value;
     });
-
-    console.log(item.key)
-    
-    const tasksRef=database.ref('/tasks');
-
-    nI.splice(nI.indexOf(item),1);
-    setTimeout(()=>{
-    
-    this.setState({
-      items: nI,
-    });
-    tasksRef.child(item.key).remove();
-  },1000);
+    this.removeItem(item.key);
+  }
+  removeItem(key){
+    const tasksRef = database.ref('/tasks');
+    tasksRef.child(key).remove();
   }
 
   onSubmit = (event) => {
