@@ -21,40 +21,58 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      changeValue: {
+        key: '',
+        value: ''
+      },
       term: {
         key: '',
         value:''
       },
-      items: [{
-        key: '1',
-        value: ' loading'
-      }]
+      items: []
     };
     this.onClick=this.onClick.bind(this);
-    
+    this.onClickLabel=this.onClickLabel.bind(this);
+    this.onSubmitChange=this.onSubmitChange.bind(this);
   }
+  
+  
   componentWillMount(){
-    
+  
     
     const tasksRef = database.ref('/tasks');
 
-    let self = this;
-    tasksRef.on('value',function(snapshot){
-      let data=[];
-      snapshot.forEach(function(chSnapshot){
-        
-        data.push({key: chSnapshot.key,value: chSnapshot.val().value});
-      });
+    const self = this;
+    tasksRef.on('child_added',function(snapshot){
+      let data;
+      console.log(snapshot.key);
+      data = {
+        key : snapshot.key,
+        value: snapshot.val().value
+      }
+      console.log(data);
   
-
       self.setState({
-        
-        items: data
+        items: [...self.state.items, data]
       });
     });
+    tasksRef.on('child_changed',(snapshot)=>{
+      
+    });
+  }
+  onClickLabel(item){
+    console.log(item);
+    this.setState({
+      changeValue: {
+        key:item.key,
+        value: item.value
+      }
+    });
     
+
     
   }
+  
   
 
   onChange = (event) => {
@@ -64,49 +82,116 @@ export default class App extends Component {
 
     } );
   }
+  onSubmitChange(e){
+    e.preventDefault();
+    console.log(this.state.changeValue.key);
+    database.ref('/tasks').child(this.state.changeValue.key).child('value').set(this.state.changeValue.value);
+    this.setState({
+      changeValue: {
+        key: '',
+        value: '',
+
+      }
+    });
+    // database.ref('/tasks').on('child_changed',(snapshot)=>{
+    //   const newItems = this.state.items;
+    //   newItems[newItems.indexOf(snapshot.val())] = 
+    //   this.setState({
+    //     changeValue: {
+    //       value: '',
+    //       key: ''
+    //     },
+    //     items: newItems
+    //   });
+    // });
+      
+        
+  }
+  onChangeName = event =>{
+    
+    this.setState({
+      changeValue: {
+        value: event.target.value,
+        key: this.state.changeValue.key
+      }
+    });
+  }
+
+    
+    
+  
+  
 
  
-  onClick(e){
-    e.preventDefault();
+  onClick(task){
+  
+
     const item = this.state.items.find(itemToFind=>{
-      return itemToFind.value==e.target.value;
+      return itemToFind.value==task.value;
     });
-    this.removeItem(item.key);
+    const newList = this.state.items;
+    newList.splice(newList.indexOf(item),1);  
+    database.ref('/tasks').on('child_removed',(snapshot)=>{
+      this.setState({
+        items: newList,
+      });
+      
+    });
+    database.ref('/tasks').child(item.key).remove();
+
+   
   }
-  removeItem(key){
-    const tasksRef = database.ref('/tasks');
-    tasksRef.child(key).remove();
-  }
+
+  
+
+  
 
   onSubmit = (event) => {
     event.preventDefault();
     if(this.state.term){
-    const itemsRef=database.ref('/tasks');
-    itemsRef.push(this.state.term);
-
-    this.setState({
-      term: {
-        key: '',
-        value: ''
-      },
-      items: [...this.state.items, this.state.term]
-    });
-  }
-
-  }
-
-  render() {
- 
+    const tasksRef=database.ref('/tasks');
+    tasksRef.push(this.state.term);
     
 
+    const self = this;
+    tasksRef.on('child_added',function(snapshot){
+      let data;
+      console.log(snapshot.key);
+      data = {
+        key : snapshot.key,
+        value: snapshot.val().value
+      }
+      console.log(data);
+  
+      self.setState({
+        term:{
+          key: '',
+          value: ''
+        },
+        items: [...self.state.items, data]
+      });
+    });
+  }
+}
+  
+
+  render() {
+    const buttonText = this.state.changeValue.value? 'Change Name': 'Add task';
+    const valueToChange = this.state.changeValue.value? this.state.changeValue.value:this.state.term.value;
+    const functionToChange = this.state.changeValue.value? this.onChangeName:this.onChange;
+    const submitToChange = this.state.changeValue.value? this.onSubmitChange:this.onSubmit;
+ 
     return (
       <div className="wrapper">
       <h1 style={{color: 'lightblue'}}>To-Do List</h1>
-        <form className="App" onSubmit={this.onSubmit}>
-          <input value={this.state.term.value} onChange={this.onChange} />
-          <button>Add Task</button>
+      <h2 style={{color: 'lightblue', 
+    textAlign: 'center'}}>type on the box and then click on a label to change the task</h2>
+        <form className="App" onSubmit={submitToChange}>
+          <input value={valueToChange} onChange={functionToChange} />
+          <button>{buttonText}</button>
         </form>
-        <List onClick={this.onClick} items={this.state.items} />
+        
+        <List changeItem={this.changeItem} term={this.state.term} onClickLabel={this.onClickLabel} onClick={this.onClick} items={this.state.items} />
       </div>
     );
   }
