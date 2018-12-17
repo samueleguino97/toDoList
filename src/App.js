@@ -42,10 +42,10 @@ export default class App extends Component {
     tasksRef.on('value',function(snapshot){
       let data=[];
       snapshot.forEach(function(chSnapshot){
-        console.log(chSnapshot.val());
+        
         data.push({key: chSnapshot.key,value: chSnapshot.val().value});
       });
-      console.log(JSON.stringify(data));
+  
 
       self.setState({
         
@@ -96,7 +96,7 @@ export default class App extends Component {
   }
 
   render() {
-    console.log(JSON.stringify(this.state.items));
+ 
     
 
     return (
