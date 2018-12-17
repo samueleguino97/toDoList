@@ -21,8 +21,14 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      term: '',
-      items: []
+      term: {
+        key: '',
+        value:''
+      },
+      items: [{
+        key: '1',
+        value: ' loading'
+      }]
     };
     this.onClick=this.onClick.bind(this);
     
@@ -36,10 +42,13 @@ export default class App extends Component {
     tasksRef.on('value',function(snapshot){
       let data=[];
       snapshot.forEach(function(chSnapshot){
-        data.push(chSnapshot.val());
+        console.log(chSnapshot.val());
+        data.push({key: chSnapshot.key,value: chSnapshot.val().value});
       });
+      console.log(JSON.stringify(data));
 
       self.setState({
+        
         items: data
       });
     });
@@ -49,22 +58,32 @@ export default class App extends Component {
   
 
   onChange = (event) => {
-    this.setState({ term: event.target.value
+    this.setState({ term:{ 
+      value: event.target.value
+    }
+
     } );
   }
 
  
   onClick(e){
+    const nI = this.state.items;
+    console.log(this.state.items);
+    const item = this.state.items.find(itemToFind=>{
+      return itemToFind.value==e.target.value;
+    });
+
+    console.log(item.key)
+    
     const tasksRef=database.ref('/tasks');
 
-    const nI=this.state.items;
-    nI.splice(nI.indexOf(e.target.value),1);
+    nI.splice(nI.indexOf(item),1);
     setTimeout(()=>{
     
     this.setState({
       items: nI,
     });
-    tasksRef.set(nI);
+    tasksRef.child(item.key).remove();
   },1000);
   }
 
@@ -75,7 +94,10 @@ export default class App extends Component {
     itemsRef.push(this.state.term);
 
     this.setState({
-      term: '',
+      term: {
+        key: '',
+        value: ''
+      },
       items: [...this.state.items, this.state.term]
     });
   }
@@ -84,12 +106,13 @@ export default class App extends Component {
 
   render() {
     console.log(JSON.stringify(this.state.items));
+    
 
     return (
       <div className="wrapper">
       <h1 style={{color: 'lightblue'}}>To-Do List</h1>
         <form className="App" onSubmit={this.onSubmit}>
-          <input value={this.state.term} onChange={this.onChange} />
+          <input value={this.state.term.value} onChange={this.onChange} />
           <button>Add Task</button>
         </form>
         <List onClick={this.onClick} items={this.state.items} />
