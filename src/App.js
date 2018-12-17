@@ -67,7 +67,7 @@ export default class App extends Component {
 
  
   onClick(e){
-    
+    e.preventDefault();
     const item = this.state.items.find(itemToFind=>{
       return itemToFind.value==e.target.value;
     });
