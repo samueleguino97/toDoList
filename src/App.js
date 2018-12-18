@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-
 import './App.css';
 import firebase from 'firebase';
-
 import{List} from './List';
 
 const config = {
@@ -14,7 +12,6 @@ const config = {
   messagingSenderId: "468212013435"
 };
 firebase.initializeApp(config);
-
 const database = firebase.database();
 
 export default class App extends Component {
@@ -35,23 +32,15 @@ export default class App extends Component {
     this.onClickLabel=this.onClickLabel.bind(this);
     this.onSubmitChange=this.onSubmitChange.bind(this);
   }
-  
-  
   componentWillMount(){
-  
-    
     const tasksRef = database.ref('/tasks');
-
     const self = this;
     tasksRef.on('child_added',function(snapshot){
       let data;
-      console.log(snapshot.key);
       data = {
         key : snapshot.key,
         value: snapshot.val().value
       }
-      console.log(data);
-  
       self.setState({
         items: [...self.state.items, data]
       });
@@ -91,14 +80,8 @@ export default class App extends Component {
         key:item.key,
         value: item.value
       }
-    });
-    
-
-    
+    }); 
   }
-  
-  
-
   onChange = (event) => {
     this.setState({ term:{ 
       value: event.target.value
@@ -116,23 +99,9 @@ export default class App extends Component {
         value: '',
 
       }
-    });
-    // database.ref('/tasks').on('child_changed',(snapshot)=>{
-    //   const newItems = this.state.items;
-    //   newItems[newItems.indexOf(snapshot.val())] = 
-    //   this.setState({
-    //     changeValue: {
-    //       value: '',
-    //       key: ''
-    //     },
-    //     items: newItems
-    //   });
-    // });
-      
-        
+    }); 
   }
   onChangeName = event =>{
-    
     this.setState({
       changeValue: {
         value: event.target.value,
@@ -140,13 +109,6 @@ export default class App extends Component {
       }
     });
   }
-
-    
-    
-  
-  
-
- 
   onClick(task){
   
 
@@ -154,34 +116,20 @@ export default class App extends Component {
       return itemToFind.value==task.value;
     });
     console.log(item)
-      
-    
     database.ref('/tasks').child(item.key).remove();
-
-   
   }
-
-  
-
-  
-
   onSubmit = (event) => {
     event.preventDefault();
     if(this.state.term){
     const tasksRef=database.ref('/tasks');
     tasksRef.push(this.state.term);
-    
-
     const self = this;
     tasksRef.on('child_added',function(snapshot){
       let data;
-      console.log(snapshot.key);
       data = {
         key : snapshot.key,
         value: snapshot.val().value
-      }
-      console.log(data);
-  
+      } 
       self.setState({
         term:{
           key: '',
@@ -192,8 +140,6 @@ export default class App extends Component {
     });
   }
 }
-  
-
   render() {
     const buttonText = this.state.changeValue.value? 'Change Name': 'Add task';
     const valueToChange = this.state.changeValue.value? this.state.changeValue.value:this.state.term.value;
@@ -209,7 +155,6 @@ export default class App extends Component {
           <input value={valueToChange} onChange={functionToChange} />
           <button>{buttonText}</button>
         </form>
-        
         <List changeItem={this.changeItem} term={this.state.term} onClickLabel={this.onClickLabel} onClick={this.onClick} items={this.state.items} />
       </div>
     );
