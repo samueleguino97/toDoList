@@ -59,6 +59,19 @@ export default class App extends Component {
     tasksRef.on('child_changed',(snapshot)=>{
       
     });
+    database.ref('/tasks').on('child_removed',(snapshot)=>{
+      const newList = this.state.items;
+        const dItem =this.state.items.find(itemToFind=>{
+          return itemToFind.key==snapshot.key;
+        });
+        console.log(dItem);
+      newList.splice(newList.indexOf(dItem),1)
+     
+        this.setState({
+        items: newList,
+      });
+      
+    });
   }
   onClickLabel(item){
     console.log(item);
@@ -129,14 +142,9 @@ export default class App extends Component {
     const item = this.state.items.find(itemToFind=>{
       return itemToFind.value==task.value;
     });
-    const newList = this.state.items;
-    newList.splice(newList.indexOf(item),1);  
-    database.ref('/tasks').on('child_removed',(snapshot)=>{
-      this.setState({
-        items: newList,
-      });
+    console.log(item)
       
-    });
+    
     database.ref('/tasks').child(item.key).remove();
 
    
